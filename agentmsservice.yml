@@ -2,3 +2,6 @@ server:
   port: 7003
   servlet:
     context-path: /agentms
+spring:
+  profiles:
+    active: dev
