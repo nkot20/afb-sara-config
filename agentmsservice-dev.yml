@@ -1,0 +1,184 @@
+server:
+  port: 7003
+  servlet:
+    context-path: /agentms
+
+spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 25MB
+      max-request-size: 25MB
+  jpa:
+    database: POSTGRESQL
+    show-sql: true
+    generate-ddl: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    open-in-view: false
+  datasource:
+    url: jdbc:postgresql://172.26.5.39:5432/agentmanagement_alt
+    username: ${database_username}
+    password: ${database_pwd}
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 10000
+      max-lifetime: 1000
+      auto-commit: true
+  config:
+    import: configserver:http://localhost:8071/
+  cloud:
+    bus:
+      enabled: true
+      trace:
+        enabled: true
+      refresh:
+        enabled: true
+      env:
+        enabled: true
+    config:
+      enabled: true
+      uri: http://localhost:8071
+    vault:
+      uri: http://localhost:8200
+      authentication: token
+      token: root
+      kv:
+        enable: true
+        backend: secret
+        default-context: msagent/dev
+  kafka:
+    bootstrap-servers: http://localhost:9093
+
+commission:
+  percentage:
+    rounding:
+      scale: 3
+
+key:
+  separator:
+    character: "-"
+
+fileStore:
+  basePath: /var/tmp/saraagencybanking
+  key: qwertyuiopasdfgh
+  selfiPath: ${fileStore.basePath}/selfie/
+  documentPath: ${fileStore.basePath}/document/
+  locationPath: ${fileStore.basePath}/location/
+  selfiSize: 16777216
+  documentSize: 26214400
+  extensions: png,jpg,jpeg
+
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*"
+  exposed-headers: "Authorization"
+  allow-credentials: true
+  max-age: 1800
+
+keycloak:
+  enabled: true
+  realm: AFB_SARA
+  auth-server-url: http://172.26.5.25:8070/auth
+  ssl-required: external
+  resource: MERCHANT_MANAGEMENT
+  credentials:
+    secret: fCb57AfpanF71t6qdnPANOGKJ9lOqgJk
+  use-resource-role-mappings: false
+  bearer-only: true
+  securityConstraints:
+    - authRoles:
+        - "*"
+  policy-enforcer-config:
+    paths:
+      - path: /*
+        enforcement-mode: DISABLED
+      - path: /
+        enforcement-mode: DISABLED
+
+logging:
+  level:
+    org.keycloak: DEBUG
+  file:
+    name: logs/log.log
+
+agent:
+  registration:
+    notification-list: ali.arif@groupebia.com
+
+services:
+  notification:
+    url: http://notification-service:7004/
+  wallet:
+    url: http://wallet-management:7002/
+  usermanagement:
+    url: http://172.26.5.25:7001/
+  bankAdaptor:
+    url: http://sarabankapiadapter:7171/bank/
+  backOffice:
+    url: http://sara-back-office:9003/
+  ussd:
+    url: http://172.26.5.700:8050/
+
+integration:
+  smobilpay:
+    base-url: https://s3p.smobilpay.staging.maviance.info/v2
+    token: F366E874-AC27-6D08-47FA-919ABD0BB793
+    secret: 0126B644-C41C-E880-405D-5FE5B4DD98F6
+
+initialize:
+  value:
+    ms: false
+    package: false
+
+country:
+  mobileCountryCode: mobileCountryCode
+  countryCode: CM
+  currency: XAF
+  bankCustomerIdSize: 7
+
+validity:
+  transactions: 10
+
+bank:
+  controls:
+    checkIfBankAccountKeyMatch: true
+    computeBankAccountKeyAlgoNumber: 0
+    beginIndexOfBankAccountKey: 0
+
+use:
+  password:
+    for:
+      wallet:
+        account:
+          cash:
+            deposit: false
+      bank:
+        account:
+          cash:
+            deposit: false
+  new:
+    souscription:
+      flow:
+        of:
+          customer: true
+
+header:
+  language: Accept-Language
+
+default:
+  lang: en
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

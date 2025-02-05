@@ -1,0 +1,57 @@
+# Database configurations
+# Initial Setup
+#spring.jpa.database=POSTGRESQL
+#spring.datasource.url=jdbc:postgresql://192.168.10.12:5432/agentmanagement
+#spring.datasource.username=postgres
+#spring.datasource.password=admin
+#spring.jpa.show-sql=true
+#spring.jpa.generate-ddl=true
+#spring.jpa.hibernate.ddl-auto=create-drop
+#spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+
+spring:
+  jpa:
+    database: POSTGRESQL
+    # Uncomment and configure the URL if needed:
+    # datasource:
+    #   url: jdbc:postgresql://data.digitalbanking.groupebia.com:5432/agentmanagement
+    #   url: jdbc:postgresql://192.168.10.12:5432/agentmanagement
+    #   username: agentmanagement
+    #   password: AgenTman@Gement#@k21
+    hibernate:
+      ddl-auto: update
+      properties:
+        hibernate.jdbc.lob.non_contextual_creation: true
+    show-sql: true
+    generate-ddl: false
+    open-in-view: false
+  datasource:
+    url: jdbc:postgresql://10.0.103.2:5432/agentmanagement
+    username: agentservices
+    password: agentservices@bia
+    hikari:
+      connection-timeout: 20000
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 10000
+      max-lifetime: 600000
+      auto-commit: true
+    testWhileIdle: true
+    test-on-borrow: true
+
+fileStore:
+  basePath: /var/tmp/saraagencybanking
+
+agent:
+  password:
+    len: 7
+
+validity:
+  transactions: 10
+
+sentry:
+  dsn: https://4745da69d3eb155731ba43be4c429d8d@o4506709965144064.ingest.us.sentry.io/4507668460077056
+  logging:
+    minimum-event-level: warn
+  environment: res
+  traces-sample-rate: 1.0

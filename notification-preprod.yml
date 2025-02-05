@@ -1,0 +1,195 @@
+server:
+  port: 7004
+
+spring:
+  #  profiles:
+  #    active: preprod
+  application:
+    name: notification-service
+  zipkin:
+    base-url: http://172.26.5.25:9411/
+  sleuth:
+    sampler:
+      probability: 1.0
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: notificationservice
+    password: notificationservice
+    url: jdbc:postgresql://172.26.5.26:5433/notification
+    hikari:
+      maximum-pool-size: 5
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    generate-ddl: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        temp:
+          use_jdbc_metadata_defaults: false
+    show-sql: false
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 75MB
+      enabled: true
+
+  liquibase:
+    change-log: classpath:liquibase/master.xml
+    enabled: false
+
+  mail:
+    protocol: smtp
+    host: smtp.eu.mailgun.org
+    port: 587
+    username: postmaster@mg.groupebia.com
+    password: 9c34538f7bfe27372fab6f2dc9681639-1831c31e-bc15e547
+    from: notifications@groupebia.com
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      ssl.trust: "*"
+    #url: http://192.168.11.75:9001/system-service/rest/api/mail/sendmailpj
+    url: http://192.168.11.249:9001/system-service/rest/api/mail/sendmailpj
+    fromName: SARA
+  data:
+    rest:
+      base-path: /api-internal
+
+
+
+  ## False implique ne va pas te declarer aupres du server registry
+eureka:
+  instance:
+    hostname: notification-service
+  client:
+    enabled: true
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:http://172.26.5.28:5001/eureka} # "http://registry-service:9001/eureka"
+    ## ADDR du server eureka; valeur par defaut serviceUrl='http://localhost:8761/eureka/
+    #eureka.client.service-url.defaultZone=http://localhost:9001/eureka
+
+
+## Expose toute les routes de actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+
+# By default cross-origin resource sharing (CORS) is enabled in "dev" mode for
+# monoliths and gateways.
+# It is disabled by default in "prod" mode for security reasons, and for microservices
+# (as you are supposed to use a gateway to access them).
+# This configures a standard org.springframework.web.cors.CorsConfiguration
+# Note that "exposed-headers" is mandatory for JWT-based security, which uses
+# the "Authorization" header, and which is not a default exposed header.
+cors:
+  allowed-origins: "*"
+  allowed-methods: "*"
+  allowed-headers: "*"
+  exposed-headers: "Authorization"
+  allow-credentials: true
+  max-age: 1800
+
+# Keycloak related configurations
+keycloak:
+  bearer-only: true
+  realm: AFB_SARA
+  resource: NOTIFICATION_SERVICE
+  auth-server-url: http://172.26.5.25:8070/auth # Make sure this URL and the URL used to get token should be same, otherwise token will be rejected
+  ssl-required: external
+  credentials:
+    secret: 3hgunzDkB2Pfj3fyUOCAqUL6j6aGdQje
+  use-resource-role-mappings: false
+
+#keycloak.securityConstraints[0].authRoles[0]: "*"
+#keycloak.securityConstraints[0].securityCollections[0].patterns[0]: /api/*
+#
+#keycloak.policy-enforcer-config.paths[0].path: /api-internal/*
+#keycloak.policy-enforcer-config.paths[0].enforcement-mode: DISABLED
+#
+#keycloak.policy-enforcer-config.paths[1].path: /api-public/*
+#keycloak.policy-enforcer-config.paths[1].enforcement-mode: DISABLED
+#
+#keycloak.policy-enforcer-config.paths[2].path: /
+#keycloak.policy-enforcer-config.paths[2].enforcement-mode: DISABLED
+
+springdoc:
+  api-docs:
+    path: /api-public/docs/api-doc
+  swagger-ui:
+    path: /api-public/docs/swagger-ui.html
+
+sms:
+  api:
+    host: https://sms.solutions4mobiles.com
+    mask: BIA Pay
+    password: Kouakep1973
+    username: clovis.njontie@groupebia.com
+    providerCode: BiaApi
+  bankApiOld:
+    host: http://192.168.11.58/smsGatwear/rest/sms/sendSimpleSMS
+    #fromname: SARA MONEY
+    providerCode: BankApiOld
+  bankApiNew:
+    host: http://192.168.11.225:9501/api
+    #fromname: SARA MONEY
+    action: sendmessage
+    password: 123456
+    username: OTP_SARA
+    messagetype: 'SMS:TEXT'
+    providerCode: BankApiNew
+  activeProvider: BankApiNew
+
+
+logging:
+  file:
+    name: logs/log.log
+app:
+  firebase-configuration-file: certificate/biapay-app-firebase-adminsdk-bcr1v-1536e0425d.json
+
+services:
+  bankAdaptor:
+    url: https://saranewpreprodcmr.afrilandfirstbank.com/bank
+  bankAPI:
+    url: http://172.26.5.23:8240/afb-fintech-api/rest/
+  userManagement:
+    url: http://172.26.5.25:7001
+  authService:
+    url:
+      login: http://172.26.5.25:8070/auth/realms/AFB_SARA/protocol/openid-connect/token
+      logout: http://172.26.5.25:8070/auth/realms/AFB_SARA/protocol/openid-connect/logout
+      refresh: http://172.26.5.25:8070/auth/realms/AFB_SARA/protocol/openid-connect/token
+
+mfa:
+  validate: true
+
+whatsapp:
+  twilio:
+    account_sid: ACbaee9211ae493e60199698fc4397bed9
+    auth_token: 07429d4268c5ac5a18fbb51154f23852
+    sender_phone_number: 14155238886
+  wassenger:
+    url: https://api.wassenger.com/v1/messages
+    auth_token: efb7392803855ca8c4877673c74008c75abcd1139b20011a52268c2bea604e9bb054409fb2bea457
+  worldvoice:
+    url: http://95.216.14.17:8080/support-afb/api/sendmessagewithuser
+    username: admin
+    password: '@dm#n2@22'
+    type: chat
+
+telcos:
+  orange:
+    msisdnTopUpOrange: msisdnTopUpOrange
+    orangeTopupPin: orangeTopupPin
+    orangeTopupPassword: orangeTopupPassword
+    orangeTopupUsername: orangeTopupUsername
+    urlApiTopUpOrange: urlApiTopUpOrange
+  mtn:
+    msisdnTopUpMTN: msisdnTopUpMTN
+    mtnTopupUsername: mtnTopupUsername
+    mtnTopupPassword: mtnTopupPassword
+    urlApiTopUpMtn: urlApiTopUpMtn
